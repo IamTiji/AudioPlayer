@@ -16,7 +16,7 @@ SAMPLERATE =   44100
 
 def read_audio(path) -> typing.Any:
     """
-    Read audio file and return numpy array and sound object
+    Read audio file and return numpy array with sound object
     """
 
     a = pb.AudioSegment.from_mp3(path)
