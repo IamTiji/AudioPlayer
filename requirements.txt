@@ -3,4 +3,4 @@ tkinter
 numpy
 scipy
 pydub
-muta
+mutagen
