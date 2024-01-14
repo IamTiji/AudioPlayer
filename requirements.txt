@@ -2,3 +2,5 @@ pillow
 tkinter
 numpy
 scipy
+pydub
+muta
