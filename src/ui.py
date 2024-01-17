@@ -24,7 +24,8 @@ MAX_FPS =       30    #Maximum FPS
 COLOR_SPETM_DV =4     #Color saturation speed divider
 SLOWBAR_SP =    5     #Slowbar speed
 BAR_SPER =      5     #Bar seperator
-PLAYBAR_RES =   600   #Playbar resolution
+PLAYBAR_RES =   50    #Playbar resolution
+PLAYBAR_WIDTH = 600   #Playbar width
 DEBUGMODE =     True  #Debug on rendering
 
 class AudioPlayer:
@@ -70,6 +71,8 @@ class AudioPlayer:
         icon = ut.get_icon(self.path)
         self.icon = ut.mask(self.mask, icon)
 
+        self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 50, PLAYBAR_RES)
+
     def start(self):
         audioThread = Thread(daemon=True, target=self.play_audio)
         renderThread = Thread(target=self.render)
@@ -77,7 +80,7 @@ class AudioPlayer:
         self.audiostarttime = time()
         self.audioT = self.tk.bind('<<Start>>', lambda e:self.startevent.set())
 
-        audioThread.start()
+        #audioThread.start()
         renderThread.start()
 
     def play_audio(self):
@@ -89,7 +92,7 @@ class AudioPlayer:
         self.startevent.wait()
         
         if self.a.duration_seconds < time()-self.audiostarttime:
-            self.tk.destroy()
+            #self.tk.destroy()
             return
         
         renderstarttime = time()
@@ -104,11 +107,11 @@ class AudioPlayer:
 
         self.slowbar = ut.compute_slowbar(bar, self.slowbar, SLOWBAR_SP)
 
+        color = ut.rgb_values_to_hex(cs.hsv_to_rgb(((time()-self.audiostarttime)/COLOR_SPETM_DV)%1, 1, 1))
+
         for i in range(bar.shape[0]):
-            self.t.create_rectangle(i*barthickness, WIN_HEIGHT, (i+1)*barthickness-BAR_SPER, WIN_HEIGHT-bar[i],
-                                     fill="black", outline=ut.rgb_values_to_hex(cs.hsv_to_rgb(((time()-self.audiostarttime)/COLOR_SPETM_DV)%1, 1, 1)))
-            self.t.create_line(i*barthickness, WIN_HEIGHT-self.slowbar[i], (i+1)*barthickness-BAR_SPER, WIN_HEIGHT-self.slowbar[i], 
-                               fill=ut.rgb_values_to_hex(cs.hsv_to_rgb(((time()-self.audiostarttime)/COLOR_SPETM_DV)%1, 1, 1)))
+            self.t.create_rectangle(i*barthickness, WIN_HEIGHT, (i+1)*barthickness-BAR_SPER, WIN_HEIGHT-bar[i], fill="black", outline=color)
+            self.t.create_line(i*barthickness, WIN_HEIGHT-self.slowbar[i], (i+1)*barthickness-BAR_SPER, WIN_HEIGHT-self.slowbar[i], fill=color)
 
         ampilitude = ut.get_ampiltude(self.data, time()-self.audiostarttime, 50)
 
@@ -117,11 +120,7 @@ class AudioPlayer:
                                           .rotate(math.sin((time()-self.audiostarttime)*IMG_ROT_SP)*IMG_ROTATION, Image.BICUBIC))
         self.t.create_image(WIN_WIDTH / 2, WIN_HEIGHT / 2, image=self.midimg)
 
-        self.playbarimg = ImageTk.PhotoImage(image=ut.data_to_img(self.data, 
-                                                                  ut.rgb_values_to_hex(cs.hsv_to_rgb(((time()-self.audiostarttime)/COLOR_SPETM_DV)%1, 1, 1)),
-                                                                  PLAYBAR_RES, 100,
-                                                                  (time()-self.audiostarttime)*(PLAYBAR_RES/self.a.duration_seconds)))
-        self.t.create_image(WIN_WIDTH / 2, 100, image=self.playbarimg)
+        self.t.create_polygon(self.audiovitwhole, fill=color)
 
         if (1 / MAX_FPS - (time() - renderstarttime)) < 0 and DEBUGMODE:
             self.framedrop += 1

@@ -90,21 +90,26 @@ def rgb_values_to_hex(rgb: tuple[int, int, int]) -> str:
     
     return f"#{math.floor(rgb[0]*255):02x}{math.floor(rgb[1]*255):02x}{math.floor(rgb[2]*255):02x}"
 
-def data_to_img(data: np.ndarray, color: tuple[int,int,int] | str, w:int, h:int, linei:int) -> Image.Image:
-    out = Image.new('RGBA', (w,h), (0,0,0,255))
+def data_to_xy(data: np.ndarray, w:int, x:int, y:int, res:int) -> list:
+    index = np.arange(x, w+x, w//res, dtype=np.int16)
+    out1 = np.zeros((2, res), dtype=np.int16)
+    out2 = np.zeros((2, res), dtype=np.int16)
+
     data = np.abs(data)
-    modified_data = np.zeros((w), dtype=np.int16)
+    modified_data = np.zeros(res, dtype=np.int16)
 
-    for x in range(w):
-        modified_data[x] = np.mean(data[w*x:w*(x+1)])
-    modified_data = modified_data/300
-
-    draw=ImageDraw.Draw(out)
-    for x in range(w):
-        draw.rectangle((x,modified_data[x]*-1+w/2,x+1,modified_data[x]+w/2), fill="white")
-        
-    out.show()
-    return out
-
-if __name__ == "__main__":
-    data_to_img(read_audio(r"C:\Users\junes_18xqzji\Music\song\Disfigure - Blank [NCS Release].mp3")[1], (255, 255, 255, 255), 600, 100, 20)
+    for i in range(res):
+        modified_data[i] = np.mean(data[res*i:res*(i+1)])
+    modified_data = modified_data//300
+    
+    out1[1] = y/2+modified_data
+    out1[0] = index
+    out2[1] = y/2-modified_data
+    out2[0] = index[::-1]
+    
+    out1 = np.rot90(out1, 1)
+    out1 = np.reshape(out1, (res*2))
+    out2 = np.rot90(out2, 1)
+    out2 = np.reshape(out2, (res*2))
+    
+    return list(np.concatenate((out1, out2)))
