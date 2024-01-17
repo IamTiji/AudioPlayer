@@ -2,38 +2,47 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
+from pydub import playback
+
 from threading import Thread, Event
 from time import time
-from pydub import playback
+
 import math
 import numpy as np
 import colorsys as cs
+
 import sys
 import os
+
+import configparser as cp
 
 try: import src.utils as ut
 except ModuleNotFoundError: import utils as ut
 
-WIN_WIDTH =     800   #Window width
-WIN_HEIGHT =    600   #Window height
-IMG_BASE_SIZE = 150   #Base image size
-IMG_SIZE_DIVD = 70    #Amplitude divider
-IMG_ROTATION =  20    #Image rotation speed
-IMG_ROT_SP =    2     #Image rotation speed
-MAX_FPS =       30    #Maximum FPS
-COLOR_SPETM_DV =4     #Color saturation speed divider
-SLOWBAR_SP =    5     #Slowbar speed
-BAR_SPER =      5     #Bar seperator
-PLAYBAR_RES =   50    #Playbar resolution
-PLAYBAR_WIDTH = 600   #Playbar width
-DEBUGMODE =     True  #Debug on rendering
+cfg = cp.ConfigParser()
+cfg.read("../config.ini")
+cfg.read("config.ini")
+
+WIN_WIDTH =          int(cfg['SETTINGS']['WIN_WIDTH'])
+WIN_HEIGHT =         int(cfg['SETTINGS']['WIN_HEIGHT'])
+IMG_BASE_SIZE =      int(cfg['SETTINGS']['IMG_BASE_SIZE'])
+IMG_SIZE_DIVD =      int(cfg['SETTINGS']['IMG_SIZE_DIVD'])
+IMG_ROTATION =       int(cfg['SETTINGS']['IMG_ROTATION'])
+IMG_ROT_SP =         int(cfg['SETTINGS']['IMG_ROT_SP'])
+MAX_FPS =            int(cfg['SETTINGS']['MAX_FPS'])
+COLOR_SPETM_DV =     int(cfg['SETTINGS']['COLOR_SPETM_DV'])
+SLOWBAR_SP =         int(cfg['SETTINGS']['SLOWBAR_SP'])
+BAR_SPER =           int(cfg['SETTINGS']['BAR_SPER'])
+PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'])
+PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'])
+PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
 
 class AudioPlayer:
     def __init__(self):
         self.tk = Tk()
-        self.t = Canvas(self.tk,background='black')
-        self.t.pack(fill=BOTH, expand=YES)
-        
+        self.t = Canvas(self.tk, background='black', width=WIN_WIDTH, height=WIN_HEIGHT)
+        self.t.pack()
+
         self.targetforder = ''
         self.listtoplay = []
         self.targetsource = ''
@@ -47,17 +56,14 @@ class AudioPlayer:
         self.mask = self.mask.convert('L')
 
         self.load()
-        self.start()
+        self.audio()
+        self.render()
 
         self.tk.geometry(f"{WIN_WIDTH}x{WIN_HEIGHT}")
         self.tk.resizable(0, 0)
         self.tk.after(1000, self.tk.event_generate('<<Start>>'))
         self.tk.deiconify()
         self.tk.mainloop()
-
-        if DEBUGMODE:
-            print(f"{self.framedrop} frame dropped out of {round((time()-self.audiostarttime)*MAX_FPS)}")
-            print(f"Average FPS: {(MAX_FPS*(time()-self.audiostarttime)-self.framedrop)/(time()-self.audiostarttime):.2f}")
 
     def load(self):
         if len(sys.argv) > 1:
@@ -71,28 +77,24 @@ class AudioPlayer:
         icon = ut.get_icon(self.path)
         self.icon = ut.mask(self.mask, icon)
 
-        self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 50, PLAYBAR_RES)
-
-    def start(self):
+        self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
+        
+    def audio(self):
         audioThread = Thread(daemon=True, target=self.play_audio)
-        renderThread = Thread(target=self.render)
 
         self.audiostarttime = time()
-        self.audioT = self.tk.bind('<<Start>>', lambda e:self.startevent.set())
+        self.tk.bind('<<Start>>', lambda e:self.startevent.set())
 
-        #audioThread.start()
-        renderThread.start()
-
+        audioThread.start()
+        
     def play_audio(self):
         self.startevent.wait()
 
         playback._play_with_pyaudio(self.a)
     
     def render(self):
-        self.startevent.wait()
-        
         if self.a.duration_seconds < time()-self.audiostarttime:
-            #self.tk.destroy()
+            self.tk.destroy()
             return
         
         renderstarttime = time()
@@ -121,9 +123,8 @@ class AudioPlayer:
         self.t.create_image(WIN_WIDTH / 2, WIN_HEIGHT / 2, image=self.midimg)
 
         self.t.create_polygon(self.audiovitwhole, fill=color)
-
-        if (1 / MAX_FPS - (time() - renderstarttime)) < 0 and DEBUGMODE:
-            self.framedrop += 1
+        playbarpos = PLAYBAR_WIDTH/self.a.duration_seconds*(time()-self.audiostarttime)
+        self.t.create_line(playbarpos, 0, playbarpos, 150, fill="black", width=PLAYBAR_LINE_WIDTH)
 
         self.t.after(max(round((1 / MAX_FPS - (time() - renderstarttime)) * 1000), 0), self.render)
 

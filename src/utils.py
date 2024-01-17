@@ -8,9 +8,10 @@ import math
 
 global SAMPLERATE
 
-BARDIV =       80
-BL =           1024
-SAMPLERATE =   44100
+BARDIV =             80
+BL =                 1024
+SAMPLERATE =         44100
+PLAYBAR_HEIGHT_DIV = 300
 
 def read_audio(path) -> tuple[pb.AudioSegment, np.ndarray]:
     """
@@ -99,12 +100,13 @@ def data_to_xy(data: np.ndarray, w:int, x:int, y:int, res:int) -> list:
     modified_data = np.zeros(res, dtype=np.int16)
 
     for i in range(res):
-        modified_data[i] = np.mean(data[res*i:res*(i+1)])
-    modified_data = modified_data//300
+        modified_data[i] = np.mean(data[(w//res)*i:(w//res)*(i+1)])
+
+    modified_data = modified_data//PLAYBAR_HEIGHT_DIV
     
     out1[1] = y/2+modified_data
     out1[0] = index
-    out2[1] = y/2-modified_data
+    out2[1] = y/2-modified_data[::-1]
     out2[0] = index[::-1]
     
     out1 = np.rot90(out1, 1)
