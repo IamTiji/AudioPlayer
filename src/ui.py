@@ -79,6 +79,7 @@ class AudioPlayer:
         self.icon = ut.mask(self.mask, icon)
 
         self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
+       
         self.tk.event_generate('<<Start>>')
         
     def audio(self):
