@@ -54,6 +54,8 @@ class AudioPlayer:
         try: self.mask = Image.open("assets/mask.png")
         except FileNotFoundError: self.mask = Image.open("../assets/mask.png")
         self.mask = self.mask.convert('L')
+        
+        self.tk.title('Audio Player')
 
         self.load()
         self.audio()
