@@ -76,8 +76,6 @@ class AudioPlayer:
         self.icon = ut.mask(self.mask, icon)
 
         self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
-       
-        self.tk.event_generate('<<Start>>')
         
     def audio(self):
         audioThread = Thread(daemon=True, target=self.play_audio)
@@ -105,6 +103,7 @@ class AudioPlayer:
         barthickness = WIN_WIDTH/bar.shape[0]
 
         if self.slowbar is None:
+            self.tk.event_generate('<<Start>>')
             self.slowbar = np.zeros(bar.shape)
 
         self.slowbar = ut.compute_slowbar(bar, self.slowbar, SLOWBAR_SP)
