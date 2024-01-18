@@ -63,7 +63,6 @@ class AudioPlayer:
 
         self.tk.geometry(f"{WIN_WIDTH}x{WIN_HEIGHT}")
         self.tk.resizable(0, 0)
-        self.tk.after(1000, self.tk.event_generate('<<Start>>'))
         self.tk.deiconify()
         self.tk.mainloop()
 
@@ -80,6 +79,7 @@ class AudioPlayer:
         self.icon = ut.mask(self.mask, icon)
 
         self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
+        self.tk.event_generate('<<Start>>')
         
     def audio(self):
         audioThread = Thread(daemon=True, target=self.play_audio)
