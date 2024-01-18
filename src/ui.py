@@ -45,10 +45,6 @@ class AudioPlayer:
         self.t = Canvas(self.tk, background='black', width=WIN_WIDTH, height=WIN_HEIGHT)
         self.t.pack()
 
-        self.targetforder = ''
-        self.listtoplay = []
-        self.targetsource = ''
-        self.audioindex = 0
         self.startevent = Event()
         self.slowbar = None
 
