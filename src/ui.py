@@ -37,6 +37,8 @@ PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'])
 PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'])
 PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
 
+del cfg
+
 class AudioPlayer:
     def __init__(self):
         self.tk = Tk()
@@ -49,7 +51,6 @@ class AudioPlayer:
         self.audioindex = 0
         self.startevent = Event()
         self.slowbar = None
-        self.framedrop = 0
 
         try: self.mask = Image.open("assets/mask.png")
         except FileNotFoundError: self.mask = Image.open("../assets/mask.png")
