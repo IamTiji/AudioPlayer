@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 import pydub as pb
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageOps
 from mutagen import mp3
 import io
 import math
@@ -37,9 +37,9 @@ def fft(data: np.ndarray, time: float) -> np.ndarray:
 
     h = (sp.fft.rfft(data[math.floor(time*SAMPLERATE):(math.floor(time*SAMPLERATE)+math.floor(tmp))])/BARDIV)
 
-    w = np.hanning(len(h)+2)
+    hanning = np.hanning(len(h)+2)
 
-    return np.abs(h)*w[1:len(h)+1]
+    return np.abs(h)*hanning[1:len(h)+1]
 
 def compute_slowbar(data: np.ndarray, slowbar: np.ndarray, speed: int) -> np.ndarray:
     """
@@ -82,7 +82,7 @@ def get_icon(path: str) -> Image.Image:
         return Image.open(io.BytesIO(image.data))
     except (KeyError, TypeError):
         try: return Image.open("assets/placeholder.png")
-        except FileNotFoundError: return Image.open("../assets/placeholder.png")
+        except FileNotFoundError: return
 
 def rgb_values_to_hex(rgb: tuple[int, int, int]) -> str:
     """
@@ -100,7 +100,7 @@ def data_to_xy(data: np.ndarray, w:int, x:int, y:int, res:int) -> list:
     modified_data = np.zeros(res, dtype=np.int16)
 
     for i in range(res):
-        modified_data[i] = np.mean(data[(w//res)*i:(w//res)*(i+1)])
+        modified_data[i] = np.mean(data[(len(data)//res)*i:(len(data)//res)*(i+1)])
 
     modified_data = modified_data//PLAYBAR_HEIGHT_DIV
     

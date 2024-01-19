@@ -16,28 +16,77 @@ import os
 
 import configparser as cp
 
-try: import src.utils as ut
-except ModuleNotFoundError: import utils as ut
+import src.utils as ut
+
+global WIN_WIDTH
+
+WIN_WIDTH=         0         
+WIN_HEIGHT=        0        
+IMG_BASE_SIZE=     0     
+IMG_SIZE_DIVD=     0     
+IMG_ROTATION=      0      
+IMG_ROT_SP=        0        
+MAX_FPS=           0           
+COLOR_SPETM_DV=    0    
+SLOWBAR_SP=        0        
+BAR_SPER=          0          
+PLAYBAR_RES=       0       
+PLAYBAR_WIDTH=     0     
+PLAYBAR_LINE_WIDTH=0
 
 cfg = cp.ConfigParser()
-cfg.read("../config.ini")
 cfg.read("config.ini")
 
-WIN_WIDTH =          int(cfg['SETTINGS']['WIN_WIDTH'])
-WIN_HEIGHT =         int(cfg['SETTINGS']['WIN_HEIGHT'])
-IMG_BASE_SIZE =      int(cfg['SETTINGS']['IMG_BASE_SIZE'])
-IMG_SIZE_DIVD =      int(cfg['SETTINGS']['IMG_SIZE_DIVD'])
-IMG_ROTATION =       int(cfg['SETTINGS']['IMG_ROTATION'])
-IMG_ROT_SP =         int(cfg['SETTINGS']['IMG_ROT_SP'])
-MAX_FPS =            int(cfg['SETTINGS']['MAX_FPS'])
-COLOR_SPETM_DV =     int(cfg['SETTINGS']['COLOR_SPETM_DV'])
-SLOWBAR_SP =         int(cfg['SETTINGS']['SLOWBAR_SP'])
-BAR_SPER =           int(cfg['SETTINGS']['BAR_SPER'])
-PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'])
-PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'])
-PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
+def cfg_fix():
+    cfg.add_section('SETTINGS')
 
-del cfg
+    cfg.set('SETTINGS', 'WIN_WIDTH',          '800')
+    cfg.set('SETTINGS', 'WIN_HEIGHT',         '600')
+    cfg.set('SETTINGS', 'IMG_BASE_SIZE',      '150')
+    cfg.set('SETTINGS', 'IMG_SIZE_DIVD',      '70' )
+    cfg.set('SETTINGS', 'IMG_ROTATION',       '20' )
+    cfg.set('SETTINGS', 'IMG_ROT_SP',         '2'  )
+    cfg.set('SETTINGS', 'MAX_FPS',            '30' )
+    cfg.set('SETTINGS', 'COLOR_SPETM_DV',     '4'  )
+    cfg.set('SETTINGS', 'SLOWBAR_SP',         '5'  )
+    cfg.set('SETTINGS', 'BAR_SPER',           '5'  )
+    cfg.set('SETTINGS', 'PLAYBAR_RES',        '800')
+    cfg.set('SETTINGS', 'PLAYBAR_WIDTH',      '800')
+    cfg.set('SETTINGS', 'PLAYBAR_LINE_WIDTH', '4'  )
+
+    cfg.write(open("config.ini", "w"))
+
+try:
+    WIN_WIDTH =          int(cfg['SETTINGS']['WIN_WIDTH'         ])
+    WIN_HEIGHT =         int(cfg['SETTINGS']['WIN_HEIGHT'        ])
+    IMG_BASE_SIZE =      int(cfg['SETTINGS']['IMG_BASE_SIZE'     ])
+    IMG_SIZE_DIVD =      int(cfg['SETTINGS']['IMG_SIZE_DIVD'     ])
+    IMG_ROTATION =       int(cfg['SETTINGS']['IMG_ROTATION'      ])
+    IMG_ROT_SP =         int(cfg['SETTINGS']['IMG_ROT_SP'        ])
+    MAX_FPS =            int(cfg['SETTINGS']['MAX_FPS'           ])
+    COLOR_SPETM_DV =     int(cfg['SETTINGS']['COLOR_SPETM_DV'    ])
+    SLOWBAR_SP =         int(cfg['SETTINGS']['SLOWBAR_SP'        ])
+    BAR_SPER =           int(cfg['SETTINGS']['BAR_SPER'          ])
+    PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'       ])
+    PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'     ])
+    PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
+except (ValueError, KeyError):
+    cfg_fix()
+    WIN_WIDTH =          int(cfg['SETTINGS']['WIN_WIDTH'         ])
+    WIN_HEIGHT =         int(cfg['SETTINGS']['WIN_HEIGHT'        ])
+    IMG_BASE_SIZE =      int(cfg['SETTINGS']['IMG_BASE_SIZE'     ])
+    IMG_SIZE_DIVD =      int(cfg['SETTINGS']['IMG_SIZE_DIVD'     ])
+    IMG_ROTATION =       int(cfg['SETTINGS']['IMG_ROTATION'      ])
+    IMG_ROT_SP =         int(cfg['SETTINGS']['IMG_ROT_SP'        ])
+    MAX_FPS =            int(cfg['SETTINGS']['MAX_FPS'           ])
+    COLOR_SPETM_DV =     int(cfg['SETTINGS']['COLOR_SPETM_DV'    ])
+    SLOWBAR_SP =         int(cfg['SETTINGS']['SLOWBAR_SP'        ])
+    BAR_SPER =           int(cfg['SETTINGS']['BAR_SPER'          ])
+    PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'       ])
+    PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'     ])
+    PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
+
+del cfg, cfg_fix
 
 class AudioPlayer:
     def __init__(self):
@@ -49,10 +98,15 @@ class AudioPlayer:
         self.slowbar = None
 
         try: self.mask = Image.open("assets/mask.png")
-        except FileNotFoundError: self.mask = Image.open("../assets/mask.png")
+        except FileNotFoundError: sys.exit()
         self.mask = self.mask.convert('L')
         
         self.tk.title('Audio Player')
+
+        try: self.ico = ImageTk.PhotoImage(Image.open("assets/placeholder.png"))
+        except FileNotFoundError: sys.exit()
+
+        self.tk.wm_iconphoto(False, self.ico)
 
         self.load()
         self.audio()
@@ -68,11 +122,18 @@ class AudioPlayer:
             self.path = sys.argv[1]
         else:
             self.path = filedialog.askopenfilename(filetypes=[("MP3 files","*.mp3")])
+            if self.path == '':
+                sys.exit()
 
         self.tk.title(os.path.basename(self.path))
         
         self.a, self.data = ut.read_audio(self.path)
         icon = ut.get_icon(self.path)
+        if icon is None: sys.exit()
+
+        self.ico = ImageTk.PhotoImage(icon)
+        self.tk.wm_iconphoto(False, self.ico)
+
         self.icon = ut.mask(self.mask, icon)
 
         self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
