@@ -12,6 +12,7 @@ BARDIV =             80
 BL =                 1024
 SAMPLERATE =         44100
 PLAYBAR_HEIGHT_DIV = 300
+MAXBARHEIGHT =       400
 
 def read_audio(path) -> tuple[pb.AudioSegment, np.ndarray]:
     """
@@ -34,12 +35,12 @@ def fft(data: np.ndarray, time: float) -> np.ndarray:
     """
 
     tmp = (SAMPLERATE / BL)
-
+    
     h = (sp.fft.rfft(data[math.floor(time*SAMPLERATE):(math.floor(time*SAMPLERATE)+math.floor(tmp))])/BARDIV)
 
     hanning = np.hanning(len(h)+2)
 
-    return np.abs(h)*hanning[1:len(h)+1]
+    return np.minimum(np.abs(h)*hanning[1:len(h)+1], np.full(h.shape, MAXBARHEIGHT))
 
 def compute_slowbar(data: np.ndarray, slowbar: np.ndarray, speed: int) -> np.ndarray:
     """

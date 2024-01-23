@@ -136,7 +136,7 @@ class AudioPlayer:
 
         self.icon = ut.mask(self.mask, icon)
 
-        self.audiovitwhole = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
+        self.wholeaudioamplitude = ut.data_to_xy(self.data, PLAYBAR_WIDTH, WIN_WIDTH/2 - PLAYBAR_WIDTH/2, 100, PLAYBAR_RES)
         
     def audio(self):
         audioThread = Thread(daemon=True, target=self.play_audio)
@@ -182,7 +182,7 @@ class AudioPlayer:
                                           .rotate(math.sin((time()-self.audiostarttime)*IMG_ROT_SP)*IMG_ROTATION, Image.BICUBIC))
         self.t.create_image(WIN_WIDTH / 2, WIN_HEIGHT / 2, image=self.midimg)
 
-        self.t.create_polygon(self.audiovitwhole, fill=color)
+        self.t.create_polygon(self.wholeaudioamplitude, fill=color)
         playbarpos = PLAYBAR_WIDTH/self.a.duration_seconds*(time()-self.audiostarttime)
         self.t.create_line(playbarpos, 0, playbarpos, 150, fill="black", width=PLAYBAR_LINE_WIDTH)
 
