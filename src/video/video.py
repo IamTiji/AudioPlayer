@@ -52,7 +52,7 @@ class convert:
         self.path = audio
         self.linefill = linefill
         self.barfill = barfill
-        self.backgroundimage = Image.open(backgroundimage).resize([VID_HEIGHT, VID_WIDTH]).convert('RGBA')
+        self.backgroundimage = Image.open(backgroundimage).resize([VID_WIDTH, VID_HEIGHT]).convert('RGBA')
         self.image = Image.open(image).convert('RGBA')
 
         self.a, self.data = ut.read_audio(self.path)
