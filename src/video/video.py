@@ -20,8 +20,8 @@ def cfg_fix():
     cfg.set('VIDEO', 'SLOWBAR_SP',         '5'   )
     cfg.set('VIDEO', 'BAR_SPER',           '5'   )
     cfg.set('VIDEO', 'SLOWBAR_WIDTH'     , '4'   )
-    cfg.set('VIDEO', 'VID_WIDTH'         , '1080')
-    cfg.set('VIDEO', 'VID_HEIGHT'        , '1920')
+    cfg.set('VIDEO', 'VID_HEIGHT'        , '1080')
+    cfg.set('VIDEO', 'VID_WIDTH'         , '1920')
 
     cfg.write(open("config.ini", "w"))
     
@@ -36,8 +36,8 @@ def cfg_load():
     SLOWBAR_SP =         int(cfg['VIDEO']['SLOWBAR_SP'        ])
     BAR_SPER =           int(cfg['VIDEO']['BAR_SPER'          ])
     SLOWBAR_WIDTH =      int(cfg['VIDEO']['SLOWBAR_WIDTH'     ])
-    VID_WIDTH =          int(cfg['VIDEO']['VID_WIDTH'         ])
     VID_HEIGHT =         int(cfg['VIDEO']['VID_HEIGHT'        ])
+    VID_WIDTH =          int(cfg['VIDEO']['VID_WIDTH'        ])
 
 try:
     cfg_load()
