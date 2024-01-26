@@ -1,3 +1,8 @@
 import src.video.video
 
-src.video.video.convert(r"C:\Users\junes_18xqzji\Downloads\Tobu - Euphoria.mp3", "#ff0000", "#ff0000", r"C:\Users\junes_18xqzji\Downloads\image.jpg", r"C:\Users\junes_18xqzji\Downloads\image.jpg")
+src.video.video.convert(r"path to audio", 
+                        "color of fft bars", 
+                        "color of slowbar bars",  
+                        r"background image",  
+                        r"main image",
+                        r"path to output video")

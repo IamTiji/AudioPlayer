@@ -5,19 +5,44 @@ from PIL import Image, ImageOps
 from mutagen import mp3
 import io
 import math
+import configparser as cp
 
-global SAMPLERATE
+SAMPLERATE:int
 
-BARDIV =             80
-BL =                 1024
-SAMPLERATE =         44100
-PLAYBAR_HEIGHT_DIV = 300
-MAXBARHEIGHT =       400
+cfg = cp.ConfigParser()
+cfg.read("config.ini")
+
+def cfg_fix():
+    if not cfg.has_section("EXTRAS"):
+        cfg.add_section('EXTRAS')
+
+    cfg.set('EXTRAS','BARDIV'            , '80'  )
+    cfg.set('EXTRAS','BL',                 '1024')
+    cfg.set('EXTRAS','PLAYBAR_HEIGHT_DIV', '300' )
+    cfg.set('EXTRAS','MAXBARHEIGHT',       '400' )
+
+    cfg.write(open("config.ini", "w"))
+    
+def cfg_load():
+    global BARDIV, BL, PLAYBAR_HEIGHT_DIV, MAXBARHEIGHT
+    
+    BARDIV =                   int(cfg['EXTRAS']['BARDIV'            ])
+    BL =                       int(cfg['EXTRAS']['BL'                ])
+    PLAYBAR_HEIGHT_DIV =       int(cfg['EXTRAS']['PLAYBAR_HEIGHT_DIV'])
+    MAXBARHEIGHT =             int(cfg['EXTRAS']['MAXBARHEIGHT'      ])
+
+try:
+    cfg_load()
+except (ValueError, KeyError):
+    cfg_fix()
+    cfg_load()
 
 def read_audio(path) -> tuple[pb.AudioSegment, np.ndarray]:
     """
     Read audio file and return numpy array with sound object
     """
+
+    global SAMPLERATE
 
     a = pb.AudioSegment.from_mp3(path)
     SAMPLERATE = a.frame_rate

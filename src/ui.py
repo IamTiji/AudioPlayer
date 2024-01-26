@@ -18,25 +18,12 @@ import configparser as cp
 
 import src.utils as ut
 
-WIN_WIDTH=         0         
-WIN_HEIGHT=        0        
-IMG_BASE_SIZE=     0     
-IMG_SIZE_DIVD=     0     
-IMG_ROTATION=      0      
-IMG_ROT_SP=        0        
-MAX_FPS=           0           
-COLOR_SPETM_DV=    0    
-SLOWBAR_SP=        0        
-BAR_SPER=          0          
-PLAYBAR_RES=       0       
-PLAYBAR_WIDTH=     0     
-PLAYBAR_LINE_WIDTH=0
-
 cfg = cp.ConfigParser()
 cfg.read("config.ini")
 
 def cfg_fix():
-    cfg.add_section('SETTINGS')
+    if not cfg.has_section("SETTINGS"):
+        cfg.add_section('SETTINGS')
 
     cfg.set('SETTINGS', 'WIN_WIDTH',          '800')
     cfg.set('SETTINGS', 'WIN_HEIGHT',         '600')
