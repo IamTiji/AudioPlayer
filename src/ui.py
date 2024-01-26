@@ -18,8 +18,6 @@ import configparser as cp
 
 import src.utils as ut
 
-global WIN_WIDTH
-
 WIN_WIDTH=         0         
 WIN_HEIGHT=        0        
 IMG_BASE_SIZE=     0     
@@ -55,8 +53,10 @@ def cfg_fix():
     cfg.set('SETTINGS', 'PLAYBAR_LINE_WIDTH', '4'  )
 
     cfg.write(open("config.ini", "w"))
-
-try:
+    
+def cfg_load():
+    global WIN_WIDTH, WIN_HEIGHT, IMG_BASE_SIZE, IMG_SIZE_DIVD, IMG_ROTATION, IMG_ROT_SP, MAX_FPS, COLOR_SPETM_DV, SLOWBAR_SP, BAR_SPER, PLAYBAR_RES, PLAYBAR_WIDTH, PLAYBAR_LINE_WIDTH
+    
     WIN_WIDTH =          int(cfg['SETTINGS']['WIN_WIDTH'         ])
     WIN_HEIGHT =         int(cfg['SETTINGS']['WIN_HEIGHT'        ])
     IMG_BASE_SIZE =      int(cfg['SETTINGS']['IMG_BASE_SIZE'     ])
@@ -70,23 +70,14 @@ try:
     PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'       ])
     PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'     ])
     PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
+
+try:
+    cfg_load()
 except (ValueError, KeyError):
     cfg_fix()
-    WIN_WIDTH =          int(cfg['SETTINGS']['WIN_WIDTH'         ])
-    WIN_HEIGHT =         int(cfg['SETTINGS']['WIN_HEIGHT'        ])
-    IMG_BASE_SIZE =      int(cfg['SETTINGS']['IMG_BASE_SIZE'     ])
-    IMG_SIZE_DIVD =      int(cfg['SETTINGS']['IMG_SIZE_DIVD'     ])
-    IMG_ROTATION =       int(cfg['SETTINGS']['IMG_ROTATION'      ])
-    IMG_ROT_SP =         int(cfg['SETTINGS']['IMG_ROT_SP'        ])
-    MAX_FPS =            int(cfg['SETTINGS']['MAX_FPS'           ])
-    COLOR_SPETM_DV =     int(cfg['SETTINGS']['COLOR_SPETM_DV'    ])
-    SLOWBAR_SP =         int(cfg['SETTINGS']['SLOWBAR_SP'        ])
-    BAR_SPER =           int(cfg['SETTINGS']['BAR_SPER'          ])
-    PLAYBAR_RES =        int(cfg['SETTINGS']['PLAYBAR_RES'       ])
-    PLAYBAR_WIDTH =      int(cfg['SETTINGS']['PLAYBAR_WIDTH'     ])
-    PLAYBAR_LINE_WIDTH = int(cfg['SETTINGS']['PLAYBAR_LINE_WIDTH'])
+    cfg_load()
 
-del cfg, cfg_fix
+del cfg, cfg_fix, cfg_load
 
 class AudioPlayer:
     def __init__(self):
@@ -97,14 +88,11 @@ class AudioPlayer:
         self.startevent = Event()
         self.slowbar = None
 
-        try: self.mask = Image.open("assets/mask.png")
-        except FileNotFoundError: sys.exit()
-        self.mask = self.mask.convert('L')
+        self.mask = Image.open("assets/mask.png").convert('L')
         
         self.tk.title('Audio Player')
 
-        try: self.ico = ImageTk.PhotoImage(Image.open("assets/placeholder.png"))
-        except FileNotFoundError: sys.exit()
+        self.ico = ImageTk.PhotoImage(Image.open("assets/placeholder.png"))
 
         self.tk.wm_iconphoto(False, self.ico)
 
@@ -129,7 +117,6 @@ class AudioPlayer:
         
         self.a, self.data = ut.read_audio(self.path)
         icon = ut.get_icon(self.path)
-        if icon is None: sys.exit()
 
         self.ico = ImageTk.PhotoImage(icon)
         self.tk.wm_iconphoto(False, self.ico)
