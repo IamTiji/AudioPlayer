@@ -1,7 +1,6 @@
 # Audio player with audio visualizing
 
 ![Image](assets/readme_ex.gif)
-DOES NOT WORK WHEN ASSETS FOLDER IS DELETED
 
 Works with python 3.6 or higher
 
