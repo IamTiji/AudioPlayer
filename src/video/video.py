@@ -47,8 +47,6 @@ except (ValueError, KeyError):
 
 del cfg, cfg_fix, cfg_load
 
-vidsize = (1920, 1080)
-
 class convert:
     def __init__(self, audio, linefill, barfill, backgroundimage, image, out):
         self.path = audio
