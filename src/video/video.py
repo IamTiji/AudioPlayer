@@ -20,13 +20,13 @@ def cfg_fix():
     cfg.set('VIDEO', 'SLOWBAR_SP',         '5'   )
     cfg.set('VIDEO', 'BAR_SPER',           '5'   )
     cfg.set('VIDEO', 'SLOWBAR_WIDTH'     , '4'   )
-    cfg.set('VIDEO', 'VID_HEIGHT'        , '1080')
-    cfg.set('VIDEO', 'VID_WIDTH'         , '1920')
+    cfg.set('VIDEO', 'VID_WIDTH'        , '1080')
+    cfg.set('VIDEO', 'VID_HEIGHT'         , '1920')
 
     cfg.write(open("config.ini", "w"))
     
 def cfg_load():
-    global IMG_BASE_SIZE, IMG_SIZE_DIVD, IMG_ROTATION, IMG_ROT_SP, MAX_FPS, SLOWBAR_SP, BAR_SPER, SLOWBAR_WIDTH, VID_WIDTH, VID_HEIGHT
+    global IMG_BASE_SIZE, IMG_SIZE_DIVD, IMG_ROTATION, IMG_ROT_SP, MAX_FPS, SLOWBAR_SP, BAR_SPER, SLOWBAR_WIDTH, VID_HEIGHT, VID_WIDTH
     
     IMG_BASE_SIZE =      int(cfg['VIDEO']['IMG_BASE_SIZE'     ])
     IMG_SIZE_DIVD =      int(cfg['VIDEO']['IMG_SIZE_DIVD'     ])
@@ -36,8 +36,8 @@ def cfg_load():
     SLOWBAR_SP =         int(cfg['VIDEO']['SLOWBAR_SP'        ])
     BAR_SPER =           int(cfg['VIDEO']['BAR_SPER'          ])
     SLOWBAR_WIDTH =      int(cfg['VIDEO']['SLOWBAR_WIDTH'     ])
-    VID_HEIGHT =         int(cfg['VIDEO']['VID_HEIGHT'        ])
-    VID_WIDTH =          int(cfg['VIDEO']['VID_WIDTH'        ])
+    VID_WIDTH =         int(cfg['VIDEO']['VID_WIDTH'        ])
+    VID_HEIGHT =          int(cfg['VIDEO']['VID_HEIGHT'        ])
 
 try:
     cfg_load()
@@ -52,7 +52,7 @@ class convert:
         self.path = audio
         self.linefill = linefill
         self.barfill = barfill
-        self.backgroundimage = Image.open(backgroundimage).resize([VID_WIDTH, VID_HEIGHT]).convert('RGBA')
+        self.backgroundimage = Image.open(backgroundimage).resize([VID_HEIGHT, VID_WIDTH]).convert('RGBA')
         self.image = Image.open(image).convert('RGBA')
 
         self.a, self.data = ut.read_audio(self.path)
@@ -72,7 +72,7 @@ class convert:
         time = t
 
         bar = ut.fft(self.data, time)
-        barthickness = VID_HEIGHT/bar.shape[0]
+        barthickness = VID_WIDTH/bar.shape[0]
 
         if self.slowbar is None:
             self.slowbar = np.zeros(bar.shape)
@@ -80,8 +80,8 @@ class convert:
         self.slowbar = ut.compute_slowbar(bar, self.slowbar, SLOWBAR_SP)
 
         for i in range(bar.shape[0]):
-            imagedraw.rectangle((i*barthickness, VID_WIDTH, (i+1)*barthickness-BAR_SPER, VID_WIDTH-bar[i]), fill=self.barfill)
-            imagedraw.line((i*barthickness, VID_WIDTH-self.slowbar[i], (i+1)*barthickness-BAR_SPER, VID_WIDTH-self.slowbar[i]), fill=self.linefill, width=SLOWBAR_WIDTH)
+            imagedraw.rectangle((i*barthickness, VID_HEIGHT, (i+1)*barthickness-BAR_SPER, VID_HEIGHT-bar[i]), fill=self.barfill)
+            imagedraw.line((i*barthickness, VID_HEIGHT-self.slowbar[i], (i+1)*barthickness-BAR_SPER, VID_HEIGHT-self.slowbar[i]), fill=self.linefill, width=SLOWBAR_WIDTH)
 
         ampilitude = ut.get_ampiltude(self.data, time, 50)
         ampilitude = round(IMG_BASE_SIZE*(ampilitude/IMG_SIZE_DIVD))
@@ -89,7 +89,7 @@ class convert:
         image.alpha_composite(self.image
                               .resize((ampilitude, ampilitude))
                               .rotate(math.sin((time)*IMG_ROT_SP)*IMG_ROTATION, Image.BICUBIC), 
-                              (math.floor(VID_HEIGHT/2-ampilitude/2), math.floor(VID_WIDTH/2-ampilitude/2)))
+                              (math.floor(VID_WIDTH/2-ampilitude/2), math.floor(VID_HEIGHT/2-ampilitude/2)))
         
         return np.array(image.convert('RGB'))
     
