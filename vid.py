@@ -6,3 +6,4 @@ src.video.video.convert(r"path to audio",
                         r"background image",  
                         r"main image",
                         r"path to output video")
+)
